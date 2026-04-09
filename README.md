@@ -9,7 +9,7 @@ python -m venv env
 
 3. Activar entorno virtual
 
-En Windows (PowerShell):
+Termianl dentro de VSCode
 
 Set-ExecutionPolicy Unrestricted -Scope Process
 .\env\Scripts\activate
