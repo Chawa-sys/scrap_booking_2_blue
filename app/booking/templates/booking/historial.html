@@ -1,0 +1,128 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="display-6 text-muted mb-3">
+    <i class="bi bi-clock-history me-2"></i>Historial de búsquedas (últimos 7 días)
+  </h2>
+
+  <a href="{{ url_for('booking.index') }}" class="btn btn-secondary mb-4">
+    ⬅️ Volver al inicio
+  </a>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endwith %}
+
+  {% if historial %}
+  <div class="table-responsive shadow-sm">
+    <table class="table table-hover table-bordered align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>👤 Usuario</th>
+          <th>🧭 Tipo</th>
+          <th>📍 Destino</th>
+          <th>🏨 Hotel</th>
+          <th>📅 Fechas</th>
+          <th>🕒 Fecha búsqueda</th>
+          <th>⚙️ Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for busqueda in historial %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ busqueda.usuario.username }}</td>
+          <td>{{ busqueda.tipo.replace("_", " ").title() }}</td>
+          <td>{{ busqueda.destino }}</td>
+          <td>{{ busqueda.nombre_hotel or 'N/A' }}</td>
+          <td>{{ busqueda.fecha_inicio }} al {{ busqueda.fecha_fin }}</td>
+          <td>{{ busqueda.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>
+            <div class="d-flex flex-wrap gap-1">
+              <a href="{{ url_for('booking.ver_resultado_historial', id=busqueda.id) }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-eye"></i> Ver
+              </a>
+
+              <form method="POST" action="{{ url_for('booking.eliminar_historial', id=busqueda.id) }}"
+                    class="d-inline"
+                    onsubmit="return confirm('¿Eliminar esta búsqueda?');">
+                <button type="submit" class="btn btn-sm btn-danger">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+
+              <form onsubmit="return false;">
+                <button class="btn btn-sm btn-outline-success"
+                        onclick="abrirModalDesdeElemento(this)"
+                        data-id="{{ busqueda.id }}"
+                        data-datos='{{ busqueda.resultados[0].datos | tojson | safe }}'>
+                  <i class="bi bi-box-arrow-down"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info">No hay búsquedas recientes en el historial.</div>
+  {% endif %}
+</div>
+
+<!-- Modal para descarga -->
+{% include 'modal_exportar_historial.html' %}
+
+<script>
+function abrirModalExportar(busquedaId, datosEjemplo) {
+  const camposContainer = document.getElementById("campos-checkboxes");
+  const inputBusquedaId = document.getElementById("busqueda_id_modal");
+  camposContainer.innerHTML = "";
+
+  for (const key of Object.keys(datosEjemplo)) {
+    const div = document.createElement("div");
+    div.classList.add("form-check");
+    div.innerHTML = `
+      <input class="form-check-input" type="checkbox" name="campos" value="${key}" id="campo_${key}" checked>
+      <label class="form-check-label" for="campo_${key}">${key}</label>
+    `;
+    camposContainer.appendChild(div);
+  }
+
+  if (!datosEjemplo.hasOwnProperty("fecha")) {
+    camposContainer.innerHTML += `
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="campos" value="fecha" id="campo_fecha">
+        <label class="form-check-label" for="campo_fecha">fecha</label>
+      </div>`;
+  }
+
+  if (!datosEjemplo.hasOwnProperty("posicion")) {
+    camposContainer.innerHTML += `
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="campos" value="posicion" id="campo_posicion">
+        <label class="form-check-label" for="campo_posicion">posición</label>
+      </div>`;
+  }
+
+  inputBusquedaId.value = busquedaId;
+
+  const modal = new bootstrap.Modal(document.getElementById("modalExportar"));
+  modal.show();
+}
+
+function abrirModalDesdeElemento(boton) {
+  const busquedaId = boton.getAttribute("data-id");
+  const datosEjemplo = JSON.parse(boton.getAttribute("data-datos"));
+  abrirModalExportar(busquedaId, datosEjemplo);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'layout.html' %}
+{% block title %}Buscar Hoteles{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h3 class="mb-4 text-muted border-bottom pb-2 display-6">Gestiona tus búsquedas</h3>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-clock-history text-primary me-2"></i>Historial</h5>
+          <p class="card-text">Revisa las búsquedas realizadas recientemente (últimos 7 días).</p>
+          <a href="{{ url_for('booking.historial') }}" class="btn btn-outline-primary rounded-pill">Ir al historial</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-bookmark-star text-success me-2"></i>Guardados</h5>
+          <p class="card-text">Accede a tus búsquedas favoritas guardadas de forma permanente.</p>
+          <a href="{{ url_for('booking.guardados') }}" class="btn btn-outline-success rounded-pill">Ver guardados</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mt-5 mb-4">
+    <h2 class="mb-0">Buscar Hoteles</h2>
+    {% if current_user.is_authenticated and current_user.is_admin %}
+      <a href="{{ url_for('auth.register') }}" class="btn btn-outline-secondary rounded-pill shadow-sm">
+        <i class="bi bi-person-plus me-1"></i> Crear nuevo usuario
+      </a>
+    {% endif %}
+  </div>
+
+  <form method="POST">
+    {% if session.get('tipo_resultado') %}
+      <div class="mb-3">
+        <a href="{{ url_for('booking.volver_a_resultados') }}" class="btn btn-warning rounded-pill">
+          ← Volver a resultados anteriores
+        </a>
+      </div>
+    {% endif %}
+
+    <div class="card shadow-sm rounded-4 p-4 mb-4 border-0">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.destino.label(class="form-label") }}
+        {{ form.destino(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.fecha_inicio.label(class="form-label") }}
+        {{ form.fecha_inicio(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.fecha_fin.label(class="form-label") }}
+        {{ form.fecha_fin(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.cantidad_hoteles.label(class="form-label") }}
+        {{ form.cantidad_hoteles(class="form-control") }}
+      </div>
+      <div class="mb-3 d-flex gap-3 flex-wrap">
+        {{ form.submit(class="btn btn-primary btn-lg rounded-pill") }}
+        <button type="submit" name="buscar_por_dia" value="1" class="btn btn-outline-success btn-lg rounded-pill">
+          Búsqueda por día
+        </button>
+      </div>
+      {% if current_user.is_authenticated %}
+        <div class="text-end mb-4">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+  </form>
+</div>
+<hr class="mt-5 mb-3">
+<footer class="text-center text-muted small">
+  Desarrollado con 💻 por <strong>hicalebcoffe</strong><br>
+  <a href="mailto:hicalebcoffe@gmail.com">hicalebcoffe@gmail.com</a><br>
+  &copy; {{ current_year or 2025 }} Todos los derechos reservados.
+</footer>
+
+{% endblock %}

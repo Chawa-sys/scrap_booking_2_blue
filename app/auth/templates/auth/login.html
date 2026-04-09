@@ -1,0 +1,87 @@
+{% extends 'layout.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<!-- Fondo decorativo -->
+<div class="d-none d-md-block ball login bg-primary bg-gradient position-absolute rounded-circle"></div>
+
+<!-- Login Section -->
+<div class="container login__form active">
+    <div class="row vh-100 w-100 align-self-center">
+        <div class="col-12 col-lg-6 col-xl-6 px-5">
+            <div class="row vh-100">
+                <div class="col align-self-center p-5 w-100">
+                    <h3 class="fw-bolder">Bienvenido al Scraper a Booking</h3>
+                    
+
+                    <!-- Formulario WTForms -->
+                    <form method="POST" class="mt-5">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.username.label(class="form-label") }}
+                            {{ form.username(class="form-control shadow-sm bg-light border-0 rounded-pill fw-lighter fs-7 p-3") }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.password.label(class="form-label") }}
+                            <div class="d-flex position-relative">
+                                {{ form.password(class="form-control auth__password shadow-sm bg-light border-0 rounded-pill fw-lighter fs-7 p-3", id="password") }}
+                                <span class="password__icon text-primary fs-4 fw-bold bi bi-eye-slash" onclick="togglePassword()"></span>
+                            </div>
+                        </div>
+
+                        <div class="col text-center">
+                            {{ form.submit(class="btn btn-outline-dark btn-lg rounded-pill mt-4 w-100") }}
+                        </div>
+                    </form>
+
+                    <p class="mt-5 text-center">Or Sign in with social platforms</p>
+                    <div class="row text-center">
+                        <div class="col mt-3">
+                            <a href="#" class="btn btn-outline-dark border-2 rounded-circle"><i class="bi bi-facebook fs-5"></i></a>
+                        </div>
+                        <div class="col mt-3">
+                            <a href="#" class="btn btn-outline-dark border-2 rounded-circle"><i class="bi bi-linkedin fs-5"></i></a>
+                        </div>
+                        <div class="col mt-3">
+                            <a href="#" class="btn btn-outline-dark border-2 rounded-circle"><i class="bi bi-twitter fs-5"></i></a>
+                        </div>
+                        <div class="col my-3">
+                            <a href="#" class="btn btn-outline-dark border-2 rounded-circle"><i class="bi bi-google fs-5"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Imagen decorativa -->
+        <div class="d-none d-lg-block col-lg-6 col-xl-6 p-5">
+            <div class="row vh-100 p-5">
+                <div class="col align-self-center p-5 text-center">
+                    <img src="{{ url_for('static', filename='img/login.png') }}" class="bounce img-fluid" alt="login image" style="max-width: 500px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para mostrar/ocultar contraseña -->
+<script>
+    function togglePassword() {
+        const pwdInput = document.getElementById("password");
+        const icon = document.querySelector(".password__icon");
+        if (pwdInput.type === "password") {
+            pwdInput.type = "text";
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        } else {
+            pwdInput.type = "password";
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        }
+    }
+</script>
+
+{% endblock %}

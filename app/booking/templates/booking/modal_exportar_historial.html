@@ -1,0 +1,37 @@
+<div class="modal fade" id="modalExportar" tabindex="-1" aria-labelledby="modalExportarLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="form-exportar-historial" method="POST" action="{{ url_for('booking.exportar_historial') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalExportarLabel">Selecciona los campos a exportar</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" name="busqueda_id" id="busqueda_id_modal">
+
+            <div class="mb-3">
+                <label class="form-label">Campos:</label><br>
+                <div id="campos-checkboxes">
+                <!-- Aquí se insertarán dinámicamente los checkboxes con JavaScript -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" name="formato" value="csv" class="btn btn-outline-primary">Exportar CSV</button>
+          <button type="submit" name="formato" value="excel" class="btn btn-outline-success">Exportar Excel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const modal = document.getElementById('modalExportar');
+  modal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const busquedaId = button.getAttribute('data-id');
+    document.getElementById('busqueda_id_modal').value = busquedaId;
+  });
+});
+</script>

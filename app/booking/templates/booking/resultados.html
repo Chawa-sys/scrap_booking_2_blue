@@ -1,0 +1,192 @@
+{% extends 'layout.html' %}
+{% block title %}Resultados de Búsqueda{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="display-6 text-muted mb-4">Resultados de Búsqueda para tu hospedaje</h2>
+
+  {% if not modo_visualizacion %}
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#exportModalCSV">
+      <i class="bi bi-filetype-csv me-1"></i> CSV
+    </button>
+    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exportModalExcel">
+      <i class="bi bi-file-earmark-excel me-1"></i> Excel
+    </button>
+    <form method="POST" action="{{ url_for('booking.guardar_resultado') }}" class="d-inline">
+      <button type="submit" class="btn btn-outline-danger shadow-sm">
+        <i class="bi bi-cloud-download me-1"></i> Guardar resultado
+      </button>
+    </form>
+  </div>
+  {% if not modo_visualizacion %}
+<!-- Modal Exportar CSV -->
+<div class="modal fade" id="exportModalCSV" tabindex="-1" aria-labelledby="exportModalCSVLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="POST" action="{{ url_for('booking.exportar_csv') }}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exportModalCSVLabel">Selecciona los campos a exportar (CSV)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body row">
+          {% set campos_defecto = ['hotel', 'price', 'precio_original', 'score', 'ubicacion_score', 'avg_review', 'reviews_count', 'impuestos'] %}
+          {% set campos_extra = ['direccion', 'distancia', 'estrellas', 'oferta', 'habitacion', 'tipo_unidad', 'tipo_cama', 'desayuno', 'cancelacion', 'pago', 'urgencia'] %}
+
+          {% for campo in campos_defecto %}
+          <div class="col-md-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="{{ campo }}" name="campos" id="campo_{{ campo }}" checked>
+              <label class="form-check-label" for="campo_{{ campo }}">{{ campo|capitalize }}</label>
+            </div>
+          </div>
+          {% endfor %}
+
+          {% for campo in campos_extra %}
+          <div class="col-md-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="{{ campo }}" name="campos" id="campo_{{ campo }}">
+              <label class="form-check-label" for="campo_{{ campo }}">{{ campo|capitalize }}</label>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Descargar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Exportar Excel -->
+<div class="modal fade" id="exportModalExcel" tabindex="-1" aria-labelledby="exportModalExcelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="POST" action="{{ url_for('booking.exportar_excel') }}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exportModalExcelLabel">Selecciona los campos a exportar (Excel)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body row">
+          {% for campo in campos_defecto %}
+          <div class="col-md-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="{{ campo }}" name="campos" id="campo_excel_{{ campo }}" checked>
+              <label class="form-check-label" for="campo_excel_{{ campo }}">{{ campo|capitalize }}</label>
+            </div>
+          </div>
+          {% endfor %}
+
+          {% for campo in campos_extra %}
+          <div class="col-md-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="{{ campo }}" name="campos" id="campo_excel_{{ campo }}">
+              <label class="form-check-label" for="campo_excel_{{ campo }}">{{ campo|capitalize }}</label>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Descargar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+  {% endif %}
+
+  <a href="{{ url_for('booking.index') }}" class="btn btn-secondary mb-4">
+    ← Nueva búsqueda
+  </a>
+
+  <!-- Tabla -->
+  <table class="table table-striped table-hover table-bordered align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th class="text-center">N°</th>
+        <th>Hotel</th>
+        <th>Precio</th>
+        <th>Precio Original</th>
+        <th>Puntaje</th>
+        <th>Puntaje Ubicación</th>
+        <th>Opinión</th>
+        <th>N° Reseñas</th>
+        <th>Impuestos</th>
+        <th>Detalles</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for hotel in resultados %}
+      <tr>
+        <td class="text-center">{{ loop.index }}</td>
+        <td>{{ hotel.hotel }}</td>
+        <td>{{ hotel.price }}</td>
+        <td>{{ hotel.precio_original }}</td>
+        <td>{{ hotel.score }}</td>
+        <td>{{ hotel.ubicacion_score }}</td>
+        <td>{{ hotel.avg_review }}</td>
+        <td>{{ hotel.reviews_count }}</td>
+        <td>{{ hotel.impuestos }}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-secondary toggle-detalle" data-id="{{ loop.index }}">
+            <i class="bi bi-info-circle"></i> Ver más
+          </button>
+
+          {% if not modo_visualizacion %}
+            {% if session.get('ultimo_hotel') %}
+              <a href="{{ url_for('booking.ver_precios_por_dia_guardado') }}" class="btn btn-sm btn-outline-primary mt-1">
+                🔁 Precios anterior
+              </a>
+              <a href="{{ url_for('booking.ver_precios_por_dia', hotel=hotel.hotel, checkin=checkin, checkout=checkout) }}" class="btn btn-sm btn-info mt-1">
+                🆕 Precios nuevos
+              </a>
+            {% else %}
+              <a href="{{ url_for('booking.ver_precios_por_dia', hotel=hotel.hotel, checkin=checkin, checkout=checkout) }}" class="btn btn-sm btn-info mt-1">
+                Ver precios por día
+              </a>
+            {% endif %}
+          {% endif %}
+        </td>
+      </tr>
+
+      <!-- Detalle oculto -->
+      <tr class="fila-detalle" id="detalle-{{ loop.index }}" style="display: none;">
+        <td colspan="10">
+          <div class="bg-light border-start border-4 border-secondary rounded p-3">
+            <div class="row">
+              <div class="col-md-4">
+                <strong>Imagen:</strong><br>
+                {% if hotel.imagen_url != "N/A" %}
+                  <img src="{{ hotel.imagen_url }}" alt="Imagen del hotel" class="img-fluid rounded" style="max-width: 100%; margin-top: 10px;">
+                {% else %}
+                  No disponible
+                {% endif %}
+              </div>
+              <div class="col-md-8">
+                <div><strong>Dirección:</strong> {{ hotel.direccion }}</div>
+                <div><strong>Distancia:</strong> {{ hotel.distancia }}</div>
+                <div><strong>Estrellas:</strong> {{ hotel.estrellas }}</div>
+                <div><strong>Oferta:</strong> {{ hotel.oferta }}</div>
+                <div><strong>Habitación:</strong> {{ hotel.habitacion }}</div>
+                <div><strong>Tipo unidad:</strong> {{ hotel.tipo_unidad }}</div>
+                <div><strong>Tipo cama:</strong> {{ hotel.tipo_cama }}</div>
+                <div><strong>Desayuno:</strong> {{ hotel.desayuno }}</div>
+                <div><strong>Cancelación:</strong> {{ hotel.cancelacion }}</div>
+                <div><strong>Pago:</strong> {{ hotel.pago }}</div>
+                <div><strong>Urgencia:</strong> {{ hotel.urgencia }}</div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Script desplegable -->
+  <script src="{{ url_for('booking.static', filename='desplegar.js') }}"></script>
+</div>
+{% endblock %}
